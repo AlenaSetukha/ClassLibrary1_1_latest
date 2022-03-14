@@ -1,0 +1,173 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+
+    <Window.Resources>
+        <local:VMGridConverter x:Key="VMGridConverter"/>
+        <local:DoubleConverter x:Key="DoubleConverter"/>
+        <local:VMAccuracyConverter x:Key="VMAccuracyConverter"/>
+        <local:VMTimeConverter x:Key="VMTimeConverter"/>
+        <local:BankChangedConverter x:Key="BankChangedConverter"/>
+    </Window.Resources>
+
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Menu Height="25" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" >
+            <MenuItem Header="File" >
+                <MenuItem Header="New" Click = "New_Click"></MenuItem>
+                <MenuItem Header="Open" Click = "Open_Click"></MenuItem>
+                <MenuItem Header="Save " Click = "Save_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit" >
+                <MenuItem Header="Add VMTime" Click = "AddVMTime_Click"></MenuItem>
+                <MenuItem Header="Add VMAccuracy" Click = "AddVMAccuracy_Click"></MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <ComboBox Name="Function" Height="30" VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" 
+                SelectedIndex = "{Binding f, RelativeSource = {RelativeSource FindAncestor, 
+                AncestorType = {x:Type local:MainWindow}}}" IsSynchronizedWithCurrentItem="True">
+            <ComboBoxItem Content = "vmdTan"/>
+            <ComboBoxItem Content = "vmdErfInv"/>
+        </ComboBox>
+
+        <TextBlock  Grid.Row = "2" Grid.Column = "0" VerticalAlignment = "Top">
+                Введите начало отрезка, конец <LineBreak/>отрезка(double ","!!!) и <LineBreak/>число узлов через пробел:
+        </TextBlock>
+
+
+        <TextBox x:Name="InputBox" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="0" TextWrapping="Wrap"
+                VerticalAlignment="Center" Margin="34,37,0,0"
+                DataContext="{Binding v_grid, RelativeSource={RelativeSource FindAncestor, 
+                AncestorType={x:Type local:MainWindow}}, Mode=TwoWay}">
+            <TextBox.Text>
+                <MultiBinding Converter="{StaticResource VMGridConverter}">
+                    <Binding Path="start"/>
+                    <Binding Path="end"/>
+                    <Binding Path="n"/>
+                </MultiBinding>
+            </TextBox.Text>
+        </TextBox>
+
+
+
+
+        <Label x:Name="label1" Content="VMTime:" Grid.Column="1" HorizontalAlignment="Center" 
+               Grid.Row="0" VerticalAlignment="Top" Height="29" Width="181" 
+               Target="{Binding ElementName=ListBox_t, Mode=OneWay}"/>
+
+        <ListBox x:Name="ListBox_t" Margin="0,29,0,129" Grid.Row = "0" Grid.Column="1" 
+                ItemsSource="{Binding v_data.bank.t_list, Mode=TwoWay, 
+                RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, 
+                UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding f, StringFormat='Function: \{0}'}"/>
+                        <TextBlock Text="{Binding grid.start, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='Start: \{0\}'}"/>
+                        <TextBlock Text="{Binding grid.end, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='End: \{0\}'}"/>
+                        <TextBlock Text="{Binding grid.n, StringFormat='n: \{0}'}"/>
+                        <TextBlock Text="{Binding time_res_HA, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='VML_HA time: \{0\}'}"/>
+                        <TextBlock Text="{Binding time_res_EP, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='VML_EP time: \{0\}'}"/>
+                        <TextBlock Text="{Binding time_res_NONE, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='Without MKL time: \{0\}'}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock x:Name="AddInf_VMTime" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" 
+                Text="{Binding SelectedItem, Converter={StaticResource VMTimeConverter}, 
+                ElementName=ListBox_t}" TextWrapping="Wrap" VerticalAlignment="Top" 
+                RenderTransformOrigin="0,0" Height="34" Width="265" TextAlignment="Center" Margin="0,42,0,0"/>
+
+
+        <Label x:Name="label3" Content="Time_rel_min_HA:" Grid.Column="1" HorizontalAlignment="Left" 
+               Grid.Row="2" VerticalAlignment="Top" Height="24" Width="115" 
+               Target="{Binding ElementName=ListBox_t, Mode=OneWay}" Margin="5,5,0,0"/>
+
+        <TextBlock x:Name="Time_rel_min_HA" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2"
+                Text="{Binding v_data.bank.time_rel_min_HA, Converter={StaticResource DoubleConverter},
+                Mode=OneWay, RelativeSource={RelativeSource FindAncestor,
+                AncestorType={x:Type local:MainWindow}}}" TextWrapping="Wrap" VerticalAlignment="Top"
+                Height="25" Width="140" TextAlignment="Center" Margin="125,66,0,0"/>
+
+
+
+        <Label x:Name="label4" Content="Time_rel_min_EP:" Grid.Column="1" HorizontalAlignment="Left" 
+               Grid.Row="2" VerticalAlignment="Top" Height="24" Width="115" 
+               Target="{Binding ElementName=ListBox_t, Mode=OneWay}" Margin="5,66,0,0"/>
+
+        <TextBlock x:Name="Time_rel_min_EP" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2"
+                Text="{Binding v_data.bank.time_rel_min_EP, Converter={StaticResource DoubleConverter},
+                Mode=OneWay, RelativeSource={RelativeSource FindAncestor,
+                AncestorType={x:Type local:MainWindow}}}" TextWrapping="Wrap" VerticalAlignment="Top"
+                Height="24" Width="140" TextAlignment="Center" Margin="125,5,0,0"/>
+
+
+
+
+
+
+
+        <ListBox x:Name="ListBox_Acc" Margin="266,29,0,129" Grid.Row = "0" Grid.Column="1" 
+                ItemsSource="{Binding v_data.bank.acc_list, Mode=TwoWay, 
+                RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, 
+                UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding f, StringFormat='Function: \{0}'}"/>
+                        <TextBlock Text="{Binding grid.start, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='Start: \{0\}'}"/>
+                        <TextBlock Text="{Binding grid.end, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='End: \{0\}'}"/>
+                        <TextBlock Text="{Binding grid.n, StringFormat='n: \{0}'}"/>
+                        <TextBlock Text="{Binding VMAcc_max_rel, Converter={StaticResource DoubleConverter}, 
+                                StringFormat='VMAcc_max_rel: \{0\}'}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock x:Name="AddInf_VMAcc" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="1" 
+                Text="{Binding SelectedItem, Converter={StaticResource VMAccuracyConverter}, 
+                ElementName=ListBox_Acc}" TextWrapping="Wrap" VerticalAlignment="Center" 
+                RenderTransformOrigin="0,0" Height="34" Width="265" TextAlignment="Center"/>
+
+        <Label x:Name="label2" Content="VMAccuracy:" Grid.Column="2" HorizontalAlignment="Center" 
+               Grid.Row="0" VerticalAlignment="Top" Height="29" Width="181" 
+               Target="{Binding ElementName=ListBox_Acc, Mode=OneWay}"/>
+
+
+
+        <TextBlock x:Name="BankChange" HorizontalAlignment="Center" Grid.Row="2"  Grid.Column="2"
+                Text="{Binding v_data.change_property, Converter={StaticResource BankChangedConverter}, 
+                Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, 
+                UpdateSourceTrigger=PropertyChanged}"  TextWrapping="Wrap" 
+                VerticalAlignment="Center" Height="34" Width="270" TextAlignment="Center"/>
+
+
+
+    </Grid>
+</Window>
