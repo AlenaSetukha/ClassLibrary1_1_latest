@@ -8,3 +8,4 @@ namespace ClassLibrary1
         vmdErfInv
     }
 }
+//это новая версия

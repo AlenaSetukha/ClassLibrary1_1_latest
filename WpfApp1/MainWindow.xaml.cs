@@ -140,6 +140,7 @@ namespace WpfApp1
         {
             v_data.AddVMTime(v_grid, f);
         }
+
         public void AddVMAccuracy_Click(object sender, RoutedEventArgs e)
         {
             v_data.AddVMAccuracy(v_grid, f);
